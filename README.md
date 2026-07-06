@@ -1,8 +1,8 @@
-# Model Address Standard (MAS) v1.0
+# Model Address Standard (MAS) v1.1
 
-* Version: 1.0
+* Version: 1.1
 * Status: Draft
-* Last Updated: February 14, 2026
+* Last Updated: July 6, 2026
 
 ## 1. Abstract
 
@@ -16,7 +16,7 @@ MAS does not define transport behavior, authentication, message formats, or infe
 
 MAS:
 
-* Defines a single required fragment parameter: m
+* Defines one required fragment parameter (m) and one optional fragment parameter (k)
 * Is processed entirely by clients
 * Does not alter HTTP resource identity
 * Requires no server, proxy, or infrastructure changes
@@ -25,12 +25,12 @@ If a client does not implement MAS, the URI behaves as a normal HTTP or HTTPS UR
 
 ## 3. Syntax
 
-A MAS address is any valid HTTP or HTTPS URI containing a fragment parameter m.
+A MAS address is any valid HTTP or HTTPS URI containing at minimum a fragment parameter m, and optionally a fragment parameter k.
 
 ### 3.1 General Form
 
 ```
-https://authority[:port][/path]#m=<model-identifier>
+https://authority[:port][/path]#m=<model-identifier>[&k=<api-key>]
 ```
 
 MAS is layered on top of RFC 3986.
@@ -59,6 +59,26 @@ Requirements
 
 MAS does not define model naming conventions.
 
+### 4.2 Key Parameter (k)
+
+The k parameter conveys an API key or token for authenticating with the model provider.
+
+Syntax
+
+```
+k = api-key
+api-key = 1*( ALPHA / DIGIT / "-" / "_" / "." / "~" )
+```
+
+Requirements
+
+* k MAY be present.
+* k MUST NOT be empty.
+* k is case-sensitive.
+* Clients MUST percent-decode the value before use.
+
+When k is present, clients SHOULD include it in the Authorization header or equivalent authentication mechanism when making requests to the provider.
+
 ## 5. Processing Rules
 
 When processing a MAS address:
@@ -69,8 +89,9 @@ When processing a MAS address:
 4. Split each parameter on the first =.
 5. Percent-decode parameter values.
 6. Verify that m is present and non-empty.
-7. Ignore all other parameters.
-8. Apply the model identifier according to client implementation.
+7. If k is present and non-empty, make its value available to the client's authentication mechanism.
+8. Ignore all remaining unknown parameters.
+9. Apply the model identifier according to client implementation.
 
 Fragment parsing MUST occur before percent-decoding to avoid ambiguity.
 
@@ -81,6 +102,8 @@ Clients:
 
 * MUST ignore unknown parameters.
 * MUST preserve unknown parameters if reserializing the URI.
+
+Parameters known to this revision: m, k.
 
 Future revisions of MAS may define additional standard parameters.
 
@@ -100,13 +123,13 @@ Example:
 Canonical:
 
 ```
-https://api.example.com#m=model-a
+https://api.example.com#m=model-a&k=sk-abc123
 ```
 
 Non-canonical:
 
 ```
-https://API.EXAMPLE.COM#x=1&m=model-a
+https://API.EXAMPLE.COM#x=1&k=sk-abc123&m=model-a
 ```
 
 ## 8. Security Considerations
@@ -114,7 +137,8 @@ https://API.EXAMPLE.COM#x=1&m=model-a
 * MAS parameters are visible in browser history, logs, and referrer headers.
 * MAS parameters are client-side metadata and MUST NOT be trusted without validation.
 * Clients SHOULD restrict acceptable model identifiers according to local policy.
-* MAS does not provide authentication, authorization, or integrity guarantees.
+* The k parameter conveys sensitive credential data. Clients MUST handle it with the same care as any other API key or secret: avoid logging it, avoid exposing it in referrer headers, and never transmit it as part of a server-side request URI.
+* MAS does not provide authentication, authorization, or integrity guarantees beyond conveying the k parameter value.
 
 ## 9. Examples
 
@@ -123,7 +147,7 @@ https://localhost:11434#m=mistral
 ```
 
 ```
-https://api.anthropic.com#m=claude-sonnet-4-5
+https://api.anthropic.com#m=claude-sonnet-4-5&k=sk-ant-abc123def456
 ```
 
 ```
@@ -136,6 +160,10 @@ https://inference.company.io:8080#m=meta-llama/Llama-2-70b
 
 ```
 https://models.example.com#m=huggingface.co:meta-llama/Llama-2-70b
+```
+
+```
+https://api.openai.com#k=sk-proj-xyz789&m=gpt-4o
 ```
 
 ## 10. Non-Goals
