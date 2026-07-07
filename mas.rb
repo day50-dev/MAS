@@ -1,6 +1,22 @@
+# Model Address Standard (MAS) — decode/encode MAS URIs.
+#
+# Usage:
+#   MAS.decode("https://api.example.com#m=gpt-4o&k=sk-xyz")
+#   # => {"m" => "gpt-4o", "k" => "sk-xyz"}
+#   MAS.encode({"m" => "gpt-4o"})
+#   # => "#m=gpt-4o"
+
 require "uri"
 
 module MAS
+  # Extract MAS parameters (+m+, +k+) from an HTTP/HTTPS URI.
+  #
+  # @param uri [String] a valid MAS address (any HTTP(S) URI with a
+  #   fragment containing at least an +m+ parameter)
+  # @return [Hash] hash with key "m" (the model identifier) and
+  #   optionally "k" (the API key)
+  # @raise [RuntimeError] if the fragment is missing, +m+ is absent,
+  #   or +m+ is empty
   def self.decode(uri)
     parsed = URI.parse(uri)
     fragment = parsed.fragment
@@ -24,6 +40,11 @@ module MAS
     params
   end
 
+  # Build a MAS fragment string from a hash with +m+ and optional +k+.
+  #
+  # @param obj [Hash] hash with a non-empty "m" key and optionally a "k" key
+  # @return [String] URI fragment of the form +#m=...&k=...+
+  # @raise [RuntimeError] if +m+ is missing or empty
   def self.encode(obj)
     m = obj["m"]
     raise "MAS: m is required and must be non-empty" if m.nil? || m.empty?

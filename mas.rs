@@ -1,9 +1,25 @@
+/// Model Address Standard (MAS) — parameters extracted from a URI.
+///
+/// See the [specification](../MAS.md) for details.
+///
+/// # Usage
+///
+/// ```ignore
+/// let p = mas::decode("https://api.example.com#m=gpt-4o&k=sk-xyz")?;
+/// let s = mas::encode(&mas::Params { m: "gpt-4o".into(), k: None })?;
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct Params {
+    /// Model identifier (required).
     pub m: String,
+    /// API key (optional).
     pub k: Option<String>,
 }
 
+/// Extract MAS parameters (`m`, `k`) from an HTTP/HTTPS URI.
+///
+/// Returns an error if the fragment is missing, `m` is absent, or
+/// `m` is empty.  Unknown fragment parameters are silently ignored.
 pub fn decode(uri: &str) -> Result<Params, String> {
     let url = url::Url::parse(uri).map_err(|e| format!("MAS: invalid URI: {e}"))?;
     let fragment = url.fragment().ok_or("MAS: fragment is required")?;
@@ -43,6 +59,9 @@ pub fn decode(uri: &str) -> Result<Params, String> {
     Ok(Params { m, k })
 }
 
+/// Build a MAS fragment string from [`Params`].
+///
+/// Returns an error if `m` is empty.
 pub fn encode(params: &Params) -> Result<String, String> {
     if params.m.is_empty() {
         return Err("MAS: m is required and must be non-empty".into());

@@ -1,3 +1,13 @@
+// Package mas implements the Model Address Standard (MAS).
+//
+// MAS defines a minimal client-side convention for identifying an AI
+// model using a URI fragment parameter.  See the specification in
+// MAS.md for details.
+//
+// Usage:
+//
+//	p, err := mas.Decode("https://api.example.com#m=gpt-4o&k=sk-xyz")
+//	s, err := mas.Encode(&mas.Params{M: "gpt-4o"})
 package mas
 
 import (
@@ -6,13 +16,16 @@ import (
 	"strings"
 )
 
-
-
+// Params holds the MAS parameters extracted from a URI.
 type Params struct {
-	M string
-	K string
+	M string // Model identifier (required)
+	K string // API key (optional)
 }
 
+// Decode extracts MAS parameters (m, k) from an HTTP/HTTPS URI.
+//
+// It returns an error if the fragment is missing, m is absent, or m
+// is empty.  Unknown fragment parameters are silently ignored.
 func Decode(uri string) (*Params, error) {
 	u, err := url.Parse(uri)
 	if err != nil {
@@ -59,6 +72,9 @@ func Decode(uri string) (*Params, error) {
 	return &Params{M: m, K: k}, nil
 }
 
+// Encode builds a MAS fragment string from Params.
+//
+// It returns an error if m is empty.
 func Encode(p *Params) (string, error) {
 	if p.M == "" {
 		return "", fmt.Errorf("MAS: m is required and must be non-empty")
