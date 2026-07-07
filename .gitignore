@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node / TypeScript
+node_modules/
+out/
+
+# Rust
+target/
+Cargo.lock
+
+# Go
+go.sum
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

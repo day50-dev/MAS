@@ -1,0 +1,25 @@
+{
+  "name": "mas",
+  "version": "1.0.0",
+  "description": "* Version: 1.1 * Status: Draft * Last Updated: July 6, 2026",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/day50-dev/MAS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/day50-dev/MAS/issues"
+  },
+  "homepage": "https://github.com/day50-dev/MAS#readme",
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "typescript": "^6.0.3"
+  }
+}
