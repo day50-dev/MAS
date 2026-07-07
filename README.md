@@ -1,6 +1,6 @@
 # Model Address Standard (MAS)
 
-Reference implementations of the [MAS specification](MAS.md) — a minimal client-side convention for identifying AI models via URI fragment parameters.
+Reference implementations of the [MAS specification](MAS.md). MAS is a minimal client-side convention for identifying AI models via URI fragment parameters.
 
 ## Libraries
 
